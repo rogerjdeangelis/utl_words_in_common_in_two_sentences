@@ -5,6 +5,11 @@ The FCMP pops the first word off a sentence and removes the first word from inpu
 
 WPS does not support FCMP yet.
 
+see nice hash solution in end by
+Bartosz Jablonski's profile photo
+yabwon@gmail.com
+
+
 INPUT
 =====
 
@@ -122,4 +127,79 @@ Subroutine utl_pop(string $,word $,action $);
     end;
 endsub;
 run;quit;
+
+*____             _
+| __ )  __ _ _ __| |_
+|  _ \ / _` | '__| __|
+| |_) | (_| | |  | |_
+|____/ \__,_|_|   \__|
+
+;
+
+Roger,
+
+If I may, one more solution, the hash way.
+
+all the best
+Bart
+
+/* the code */
+
+data have;
+   length str1 str2 $200;
+   str1="to be or not to be";
+   str2="2 b or not 2 b";
+   output;
+   str1="every good deed results in a better or best person";
+   str2="good better best never let it rest until good is better and better is best";
+   output;
+run;quit;
+
+
+data want;
+
+dcl hash h () ;
+  h.definekey ("word") ;
+  h.definedata ("word", "count") ;
+  h.definedone ();
+
+do until(eof);
+h.clear();
+
+set have end = eof;
+
+count = 0;
+do i=1 to countw(str1);
+ word = scan(str1, i);
+ if h.find() then h.add();
+end;
+
+do i=1 to countw(str2);
+ word = scan(str2, i);
+ if h.find() = 0 then do; count = 1; h.replace(); end;
+end;
+
+
+declare hiter ih('h');
+count_of_common=0; length common_words $ 200; common_words = "";
+
+_rc_ = ih.first();
+do while(_rc_ = 0);
+    if count then do;
+                    common_words = catx(" ", common_words, word);
+                    count_of_common +1;
+                  end;
+    _rc_ = ih.next();
+end;
+output;
+/*
+h.output(dataset: "d"!!strip(put(_N_, best.))!!"(where=(count))" );
+_N_+1;
+*/
+end;
+
+stop; keep str1 str2 common_words count_of_common;
+run;
+
+
 
